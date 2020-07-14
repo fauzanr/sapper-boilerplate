@@ -1,6 +1,41 @@
 <script>
+  import { goto, stores } from '@sapper/app'
+  
+	const { session } = stores()
+	
 	export let segment;
+
+	async function logout () {
+		const res = await fetch('http://localhost:3000/api/auth/logout', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			credentials: 'include'
+		})
+		const json = await res.json()
+
+		if(json === 'ok') {
+			window.location.href = '/login'
+		} else {
+			alert('??')
+		}
+	}
 </script>
+
+<nav>
+	<ul>
+		<li><a aria-current="{segment === undefined ? 'page' : undefined}" href=".">home</a></li>
+		<li><a aria-current="{segment === 'about' ? 'page' : undefined}" href="about">about</a></li>
+
+		{#if $session.authenticated === true}
+			<li><a aria-current="{segment === 'profile' ? 'page' : undefined}" href="profile">profile</a></li>
+			<li><a href="/" on:click|preventDefault={logout}>logout</a></li>
+		{:else}
+			<li><a aria-current="{segment === 'login' ? 'page' : undefined}" href="login">login</a></li>
+		{/if}
+	</ul>
+</nav>
 
 <style>
 	nav {
@@ -47,14 +82,3 @@
 		display: block;
 	}
 </style>
-
-<nav>
-	<ul>
-		<li><a aria-current="{segment === undefined ? 'page' : undefined}" href=".">home</a></li>
-		<li><a aria-current="{segment === 'about' ? 'page' : undefined}" href="about">about</a></li>
-
-		<!-- for the blog link, we're using rel=prefetch so that Sapper prefetches
-		     the blog data when we hover over the link or tap it on a touchscreen -->
-		<li><a rel=prefetch aria-current="{segment === 'blog' ? 'page' : undefined}" href="blog">blog</a></li>
-	</ul>
-</nav>
